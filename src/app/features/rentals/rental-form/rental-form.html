@@ -1,0 +1,45 @@
+<div class="container">
+  <h2>Nueva Renta</h2>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-group">
+      <label>Vehículo</label>
+      <select [(ngModel)]="rental.vehiculo" name="vehiculo" required>
+        <option value="0" disabled>Selecciona un vehículo</option>
+        <option *ngFor="let v of vehicles" [value]="v.id">
+          {{ v.placa }} - {{ v.marca }} {{ v.modelo }}
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Conductor</label>
+      <select [(ngModel)]="rental.conductor" name="conductor" required>
+        <option value="0" disabled>Selecciona un conductor</option>
+        <option *ngFor="let d of drivers" [value]="d.id">
+          {{ d.nombre }} {{ d.apellido }}
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Fecha inicio</label>
+      <input [(ngModel)]="rental.fecha_inicio" name="fecha_inicio" type="datetime-local" required />
+    </div>
+    <div class="form-group">
+      <label>Tipo de tarifa</label>
+      <select [(ngModel)]="rental.tipo_tarifa" name="tipo_tarifa">
+        <option value="hora">Por hora</option>
+        <option value="dia">Por día</option>
+        <option value="km">Por kilómetro</option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button type="button" routerLink="/rentals">Cancelar</button>
+      <button type="submit" [disabled]="saving">
+        {{ saving ? 'Guardando...' : 'Iniciar renta' }}
+      </button>
+    </div>
+  </form>
+</div>

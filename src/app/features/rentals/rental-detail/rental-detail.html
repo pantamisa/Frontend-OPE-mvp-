@@ -1,0 +1,45 @@
+<div class="container">
+  <h2>Detalle de Renta</h2>
+
+  <div *ngIf="loading">Cargando...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="rental && !loading" class="detail-card">
+    <div class="detail-row">
+      <span>ID:</span><span>{{ rental.id }}</span>
+    </div>
+    <div class="detail-row">
+      <span>Vehículo:</span><span>{{ rental.vehiculo }}</span>
+    </div>
+    <div class="detail-row">
+      <span>Conductor:</span><span>{{ rental.conductor }}</span>
+    </div>
+    <div class="detail-row">
+      <span>Fecha inicio:</span><span>{{ rental.fecha_inicio }}</span>
+    </div>
+    <div class="detail-row">
+      <span>Fecha fin:</span><span>{{ rental.fecha_fin || 'En curso' }}</span>
+    </div>
+    <div class="detail-row">
+      <span>Tipo tarifa:</span><span>{{ rental.tipo_tarifa }}</span>
+    </div>
+    <div class="detail-row">
+      <span>Estado:</span>
+      <span class="badge {{ rental.estado }}">{{ rental.estado }}</span>
+    </div>
+    <div class="detail-row" *ngIf="rental.total">
+      <span>Total:</span><span>$ {{ rental.total | number }}</span>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/rentals" class="btn-secondary">Volver</a>
+      <button
+        *ngIf="rental.estado === 'activa'"
+        (click)="close()"
+        [disabled]="closing"
+        class="btn-danger">
+        {{ closing ? 'Finalizando...' : 'Finalizar renta' }}
+      </button>
+    </div>
+  </div>
+</div>

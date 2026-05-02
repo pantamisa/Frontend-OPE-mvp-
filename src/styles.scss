@@ -1,3 +1,18 @@
+:root {
+  --green-dark:   #1d5e2a;
+  --green-mid:    #3a7a44;
+  --green-sidebar:#4e8b58;
+  --green-chart:  #6ec47a;
+  --green-light:  #a8e6b0;
+  --white:        #ffffff;
+  --text-dark:    #111111;
+  --text-muted:   #888888;
+
+  --header-h:     72px;
+  --sidebar-w:    175px;
+  --footer-h:     44px;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {

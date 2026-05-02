@@ -2,21 +2,6 @@
 //  OPE — Layout Shell
 // ══════════════════════════════════════════
 
-:root {
-  --green-dark:   #1d5e2a;
-  --green-mid:    #3a7a44;
-  --green-sidebar:#4e8b58;
-  --green-chart:  #6ec47a;
-  --green-light:  #a8e6b0;
-  --white:        #ffffff;
-  --text-dark:    #111111;
-  --text-muted:   #888888;
-
-  --header-h:     72px;
-  --sidebar-w:    175px;
-  --footer-h:     44px;
-}
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f4f4; }
 
@@ -40,12 +25,19 @@ html, body { height: 100%; font-family: 'Helvetica Neue', Arial, sans-serif; bac
   top: 0;
   z-index: 100;
 
+  &__logo {
+    background-color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   &__logo-img {
-    height: 52px;
+    height: 44px;
     width: auto;
     display: block;
-    // Keep logo visible on dark bg — it has transparency
-    filter: brightness(0) invert(1);
   }
 
   &__user {
@@ -53,6 +45,8 @@ html, body { height: 100%; font-family: 'Helvetica Neue', Arial, sans-serif; bac
     align-items: center;
     gap: 10px;
     color: var(--white);
+    position: relative;
+    cursor: pointer;
   }
 
   &__clock-icon {
@@ -84,10 +78,38 @@ html, body { height: 100%; font-family: 'Helvetica Neue', Arial, sans-serif; bac
     align-items: center;
     color: var(--white);
     opacity: 0.9;
-    cursor: pointer;
     transition: opacity 0.15s;
 
     &:hover { opacity: 1; }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    min-width: 160px;
+    z-index: 200;
+    
+    &-item {
+      display: block;
+      padding: 12px 16px;
+      color: #333;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+
+      &:hover {
+        background: #f4f4f4;
+        color: #d93025;
+      }
+    }
   }
 }
 

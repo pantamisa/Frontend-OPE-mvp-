@@ -5,13 +5,16 @@
     <div class="search-group">
       <span class="search-label">Buscar vehículo</span>
       <div class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" [(ngModel)]="searchTerm" class="search-input"/>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" [(ngModel)]="searchTerm" class="search-input" />
       </div>
     </div>
     <div class="action-btns">
-      <button class="btn btn--green" (click)="openModal()">añadir</button>
-      <button class="btn btn--red" (click)="deleteSelected()">eliminar</button>
+      <button class="btn btn--green" (click)="openModal()">Añadir</button>
+      <button class="btn btn--red" (click)="deleteSelected()">Eliminar</button>
     </div>
   </div>
 
@@ -33,9 +36,12 @@
         <tr *ngFor="let v of filtered">
           <td>
             <label class="checkbox-wrap">
-              <input type="checkbox" [(ngModel)]="v.checked" hidden/>
+              <input type="checkbox" [(ngModel)]="v.checked" hidden />
               <span class="custom-check" [class.custom-check--active]="v.checked">
-                <svg *ngIf="v.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+                <svg *ngIf="v.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff"
+                  stroke-width="2.2">
+                  <polyline points="1.5,6 4.5,9 10.5,3" />
+                </svg>
               </span>
             </label>
           </td>
@@ -60,19 +66,19 @@
     <div class="modal__grid">
       <div class="modal__field">
         <label class="modal__label">Placa</label>
-        <input type="text" [(ngModel)]="newVehicle.plate" class="modal__input" placeholder="ABC-123"/>
+        <input type="text" [(ngModel)]="newVehicle.plate" class="modal__input" placeholder="ABC-123" />
       </div>
       <div class="modal__field">
         <label class="modal__label">Marca</label>
-        <input type="text" [(ngModel)]="newVehicle.brand" class="modal__input"/>
+        <input type="text" [(ngModel)]="newVehicle.brand" class="modal__input" />
       </div>
       <div class="modal__field">
         <label class="modal__label">Modelo</label>
-        <input type="text" [(ngModel)]="newVehicle.model" class="modal__input"/>
+        <input type="text" [(ngModel)]="newVehicle.model" class="modal__input" />
       </div>
       <div class="modal__field">
         <label class="modal__label">Año</label>
-        <input type="number" [(ngModel)]="newVehicle.year" class="modal__input"/>
+        <input type="number" [(ngModel)]="newVehicle.year" class="modal__input" />
       </div>
       <div class="modal__field">
         <label class="modal__label">Tipo</label>
@@ -82,7 +88,7 @@
       </div>
       <div class="modal__field">
         <label class="modal__label">Rendimiento (km/L)</label>
-        <input type="number" [(ngModel)]="newVehicle.kmPerLiter" class="modal__input"/>
+        <input type="number" [(ngModel)]="newVehicle.kmPerLiter" class="modal__input" />
       </div>
       <div class="modal__field">
         <label class="modal__label">Estado</label>

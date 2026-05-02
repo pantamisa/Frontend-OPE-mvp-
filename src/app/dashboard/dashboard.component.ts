@@ -1,7 +1,8 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { interval, Subscription } from 'rxjs';
 
-// Chart.js — install via: npm install chart.js
+// Chart.js
 import {
   Chart,
   LineController,
@@ -23,20 +24,50 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryS
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
 
   private chart?: Chart;
+  private updateSubscription?: Subscription;
+
+  // Dynamic metrics
+  consumoMes: number = 345;
+  promedioMes: number = 289;
+  promedioOficinas: number = 20;
 
   readonly labels = [
     'Oficina 1','Oficina 2','Oficina 3','Oficina 4','Oficina 5','Oficina 6',
     'Oficina 7','Oficina 8','Oficina 9','Oficina 10','Oficina 11'
   ];
 
-  readonly data = [4, 10, 8, 15, 10, 27, 16, 16, 11, 13, 8];
+  data = [4, 10, 8, 15, 10, 27, 16, 16, 11, 13, 8];
+
+  ngOnInit(): void {
+    // Simulate real-time updates every 3 seconds
+    this.updateSubscription = interval(3000).subscribe(() => {
+      this.simulateRealTimeData();
+    });
+  }
 
   ngAfterViewInit(): void {
     this.buildChart();
+  }
+
+  private simulateRealTimeData(): void {
+    // Randomize metrics slightly to simulate live changes
+    this.consumoMes += Math.floor(Math.random() * 5) - 1; // Slight increase mostly
+    this.promedioMes = Math.floor(this.promedioMes + (Math.random() * 4 - 2));
+    this.promedioOficinas = Math.floor(this.promedioOficinas + (Math.random() * 2 - 1));
+
+    // Shift chart data left and add a new random point at the end
+    this.data.shift();
+    const newDataPoint = Math.floor(Math.random() * 15) + 5; // 5 to 20
+    this.data.push(newDataPoint);
+
+    if (this.chart) {
+      this.chart.data.datasets[0].data = this.data;
+      this.chart.update();
+    }
   }
 
   private buildChart(): void {
@@ -54,13 +85,13 @@ export class DashboardComponent implements AfterViewInit {
           pointBackgroundColor: '#ffffff',
           pointRadius: 4,
           pointHoverRadius: 6,
-          tension: 0,
+          tension: 0.3, // Add some smoothness to make it look nicer
           fill: false
         }]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -84,7 +115,7 @@ export class DashboardComponent implements AfterViewInit {
           },
           y: {
             min: 0,
-            max: 30,
+            max: 35,
             ticks: {
               stepSize: 5,
               color: '#1a1a1a',
@@ -106,6 +137,9 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    if (this.updateSubscription) {
+      this.updateSubscription.unsubscribe();
+    }
     this.chart?.destroy();
   }
 }

@@ -1,0 +1,73 @@
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <header class="top-bar">
+    <div class="top-bar__logo">
+      <img src="assets/ope-logo.png" alt="OpE" class="top-bar__logo-img" />
+    </div>
+    <div class="top-bar__user">
+      <span class="top-bar__clock-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </span>
+      <div class="top-bar__user-info">
+        <span class="top-bar__user-name">administrador</span>
+        <span class="top-bar__user-role">admin</span>
+      </div>
+      <span class="top-bar__avatar">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="3"/>
+          <path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+        </svg>
+      </span>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <ul class="sidebar__menu">
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/dashboard')">
+          <a routerLink="/dashboard" class="sidebar__link">dashboard</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/fleet-tracking')">
+          <a routerLink="/fleet-tracking" class="sidebar__link">Seguimiento<br/>flota</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/tracking-control')">
+          <a routerLink="/tracking-control" class="sidebar__link">Control<br/>seguimiento</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/maintenance-requests')">
+          <a routerLink="/maintenance-requests" class="sidebar__link">Solicitudes de<br/>mantenimiento</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/consumption-reports')">
+          <a routerLink="/consumption-reports" class="sidebar__link">Reportes de<br/>consumo</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/driver-register')">
+          <a routerLink="/driver-register" class="sidebar__link">Registro de<br/>conductores</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/vehicle-register')">
+          <a routerLink="/vehicle-register" class="sidebar__link">Registro de<br/>vehículos</a>
+        </li>
+        <li class="sidebar__item" [class.sidebar__item--active]="isActive('/rentals')">
+          <a routerLink="/rentals" class="sidebar__link">Gestión de<br/>rentas</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="main-content">
+      <router-outlet />
+    </main>
+
+  </div>
+
+  <footer class="app-footer">
+    <span class="app-footer__text">Sistema de Optimización de Energía</span>
+    <span class="app-footer__icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </span>
+  </footer>
+
+</div>

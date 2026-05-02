@@ -1,0 +1,34 @@
+<div class="dashboard">
+  <h1 class="page-title">Dashboard</h1>
+
+  <div class="dashboard__body">
+
+    <!-- ── CHART AREA ── -->
+    <div class="chart-card">
+      <p class="chart-card__title">Consumo por coches</p>
+      <div class="chart-wrap">
+        <canvas #chartCanvas></canvas>
+      </div>
+    </div>
+
+    <!-- ── METRIC CARDS ── -->
+    <div class="metrics">
+
+      <div class="metric-card metric-card--red">
+        <p class="metric-card__label">Consumo del mes</p>
+        <p class="metric-card__value">345 KW</p>
+      </div>
+
+      <div class="metric-card metric-card--yellow">
+        <p class="metric-card__label">promedio consumo mes</p>
+        <p class="metric-card__value">289 KW</p>
+      </div>
+
+      <div class="metric-card metric-card--green">
+        <p class="metric-card__label">promedio consumo en oficinas</p>
+        <p class="metric-card__value">20 KW</p>
+      </div>
+
+    </div>
+  </div>
+</div>

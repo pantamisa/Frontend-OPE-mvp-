@@ -1,0 +1,139 @@
+<div class="page">
+  <h1 class="page-title">Gestión de Rentas</h1>
+
+  <div class="toolbar">
+    <div class="search-group">
+      <span class="search-label">Buscar renta</span>
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" [(ngModel)]="searchTerm" class="search-input"/>
+      </div>
+    </div>
+    <div class="action-btns">
+      <button class="btn btn--green" (click)="openModal()">nueva renta</button>
+      <button class="btn btn--red" (click)="deleteSelected()">eliminar</button>
+    </div>
+  </div>
+
+  <!-- Rental list cards -->
+  <div class="rental-list">
+    <div class="rental-card" *ngFor="let r of filtered" [class.rental-card--done]="r.status === 'Finalizada'">
+      <div class="rental-card__check">
+        <label class="checkbox-wrap">
+          <input type="checkbox" [(ngModel)]="r.checked" hidden/>
+          <span class="custom-check" [class.custom-check--active]="r.checked">
+            <svg *ngIf="r.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+          </span>
+        </label>
+      </div>
+      <div class="rental-card__body">
+        <div class="rental-card__row">
+          <div class="rental-card__field">
+            <span class="rental-card__label">Vehículo</span>
+            <span class="rental-card__value">{{ r.vehicle }}</span>
+          </div>
+          <div class="rental-card__field">
+            <span class="rental-card__label">Conductor</span>
+            <span class="rental-card__value">{{ r.driver }}</span>
+          </div>
+          <div class="rental-card__field">
+            <span class="rental-card__label">Km inicial</span>
+            <span class="rental-card__value">{{ r.kmStart | number }}</span>
+          </div>
+          <div class="rental-card__field">
+            <span class="rental-card__label">Km final</span>
+            <span class="rental-card__value">{{ r.kmEnd !== null ? (r.kmEnd | number) : '—' }}</span>
+          </div>
+          <div class="rental-card__field">
+            <span class="rental-card__label">$/km</span>
+            <span class="rental-card__value">{{ r.costPerKm | number }}</span>
+          </div>
+          <div class="rental-card__field">
+            <span class="rental-card__label">Total</span>
+            <span class="rental-card__value rental-card__value--total">
+              {{ r.total !== null ? ('$' + (r.total | number)) : '—' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="rental-card__actions">
+        <span class="badge" [class.badge--green]="r.status==='Activa'" [class.badge--gray]="r.status==='Finalizada'">{{ r.status }}</span>
+        <button class="btn-finalize" *ngIf="r.status === 'Activa'" (click)="openClose(r)">Finalizar</button>
+      </div>
+    </div>
+    <p class="empty-state" *ngIf="filtered.length === 0">No hay rentas registradas.</p>
+  </div>
+</div>
+
+<!-- ══ NEW RENTAL MODAL ══ -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2 class="modal__title">Nueva Renta</h2>
+    <div class="modal__grid">
+      <div class="modal__field modal__field--full">
+        <label class="modal__label">Vehículo</label>
+        <select [(ngModel)]="newRental.vehicle" class="modal__select">
+          <option *ngFor="let v of vehicles" [value]="v">{{ v }}</option>
+        </select>
+      </div>
+      <div class="modal__field modal__field--full">
+        <label class="modal__label">Conductor</label>
+        <select [(ngModel)]="newRental.driver" class="modal__select">
+          <option *ngFor="let d of drivers" [value]="d">{{ d }}</option>
+        </select>
+      </div>
+      <div class="modal__field">
+        <label class="modal__label">Kilometraje inicial</label>
+        <input type="number" [(ngModel)]="newRental.kmStart" class="modal__input" min="0"/>
+      </div>
+      <div class="modal__field">
+        <label class="modal__label">Gasto por kilómetro ($)</label>
+        <input type="number" [(ngModel)]="newRental.costPerKm" class="modal__input" min="0"/>
+      </div>
+    </div>
+    <div class="modal__actions">
+      <button class="btn btn--gray" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn--green" (click)="saveRental()">Iniciar renta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLOSE RENTAL MODAL ══ -->
+<div class="modal-backdrop" *ngIf="closingRental" (click)="cancelClose()">
+  <div class="modal modal--close" (click)="$event.stopPropagation()">
+    <h2 class="modal__title">Finalizar Renta</h2>
+    <p class="modal__subtitle">{{ closingRental!.vehicle }} — {{ closingRental!.driver }}</p>
+
+    <div class="summary-row">
+      <div class="summary-item">
+        <span class="summary-item__label">Km inicial</span>
+        <span class="summary-item__val">{{ closingRental!.kmStart | number }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-item__label">$/km</span>
+        <span class="summary-item__val">{{ closingRental!.costPerKm | number }}</span>
+      </div>
+    </div>
+
+    <div class="modal__field" style="margin-bottom:1rem;">
+      <label class="modal__label">Kilometraje final</label>
+      <input type="number" [(ngModel)]="kmFinal" class="modal__input" [min]="closingRental!.kmStart + 1"/>
+    </div>
+
+    <div class="cost-preview">
+      <div class="cost-preview__row">
+        <span>Km recorridos</span>
+        <strong>{{ closingKm | number }} km</strong>
+      </div>
+      <div class="cost-preview__row cost-preview__row--total">
+        <span>Total a cobrar</span>
+        <strong>${{ closingTotal | number }}</strong>
+      </div>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn btn--gray" (click)="cancelClose()">Cancelar</button>
+      <button class="btn btn--green" (click)="finalizeRental()">Confirmar y cerrar</button>
+    </div>
+  </div>
+</div>

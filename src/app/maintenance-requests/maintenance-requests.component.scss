@@ -1,0 +1,97 @@
+.page { }
+.page-title { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 1.4rem; }
+
+// ── Toolbar ─────────────────────────────────
+.toolbar {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 1.8rem; flex-wrap: wrap;
+}
+.search-group { display: flex; align-items: center; gap: 1rem; }
+.search-label { font-size: 15px; font-weight: 600; color: #222; white-space: nowrap; }
+.search-box {
+  position: relative; display: flex; align-items: center;
+  background: #f0edf6; border-radius: 50px; padding: 8px 16px; width: 320px;
+}
+.search-icon { color: #888; flex-shrink: 0; }
+.search-input {
+  border: none; background: transparent; outline: none; width: 100%;
+  font-size: 14px; margin-left: 8px;
+}
+.action-btns { display: flex; gap: 10px; margin-left: auto; }
+.btn {
+  padding: 10px 26px; border: none; border-radius: 8px; font-size: 14px;
+  font-weight: 700; cursor: pointer; letter-spacing: 0.3px; transition: opacity 0.15s;
+  &:hover { opacity: 0.88; }
+  &--green { background: #3ab54a; color: #fff; }
+  &--red   { background: #c0392b; color: #fff; }
+}
+
+// ── List ────────────────────────────────────
+.request-list { display: flex; flex-direction: column; }
+.request-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0; border-bottom: 1px solid #e8e8e8;
+  &__info { flex: 1; }
+  &__title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 3px; }
+  &__desc { font-size: 13px; color: #666; }
+  &__meta { display: flex; align-items: center; gap: 14px; }
+  &__status { font-size: 13px; color: #444; }
+  &__comment-icon { cursor: pointer; display: flex; align-items: center; }
+}
+.checkbox-wrap { cursor: pointer; display: flex; align-items: center; }
+.hidden-check { display: none; }
+.custom-check {
+  width: 22px; height: 22px; border: 2px solid #5a9e5a; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+  &--active { background: #3a6ec8; border-color: #3a6ec8; }
+}
+.empty-state { padding: 2rem; text-align: center; color: #aaa; font-size: 14px; }
+
+// ── Modal ───────────────────────────────────
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center; z-index: 200;
+}
+.modal {
+  background: #fff; border: 2.5px solid #5a9e5a; border-radius: 14px;
+  padding: 1.8rem 2rem 1.2rem; width: 100%; max-width: 700px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  &__layout { display: flex; gap: 2rem; margin-bottom: 1.2rem; }
+  &__left { flex: 1; display: flex; flex-direction: column; }
+  &__right { flex: 1; display: flex; flex-direction: column; }
+  &__field-label { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 8px; }
+  &__input {
+    width: 100%; padding: 10px 16px; border: 2px solid #5a9e5a; border-radius: 50px;
+    font-size: 14px; outline: none;
+    &:focus { border-color: #1d5e2a; }
+  }
+  &__select {
+    padding: 9px 14px; border: 1.5px solid #ccc; border-radius: 8px;
+    font-size: 14px; outline: none; cursor: pointer; background: #fff;
+    width: 160px;
+  }
+  &__textarea {
+    width: 100%; flex: 1; border: 2px solid #5a9e5a; border-radius: 12px;
+    padding: 10px 14px; font-size: 14px; outline: none; resize: none; min-height: 140px;
+    &:focus { border-color: #1d5e2a; }
+  }
+  &__upload-row {
+    display: flex; align-items: center; gap: 12px; margin-top: 1.4rem;
+  }
+  &__actions {
+    display: flex; justify-content: flex-end; gap: 12px; margin-top: 0.4rem;
+  }
+  &__icon-btn {
+    background: none; border: none; cursor: pointer; color: #444;
+    display: flex; align-items: center; padding: 4px;
+    transition: color 0.15s;
+    &:hover { color: #1d5e2a; }
+    &--red:hover { color: #c0392b; }
+  }
+}
+.upload-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border: 2.5px solid #5a9e5a; border-radius: 10px;
+  cursor: pointer; color: #1d5e2a;
+  &:hover { background: #f0faf0; }
+}
+.upload-name { font-size: 12px; color: #666; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

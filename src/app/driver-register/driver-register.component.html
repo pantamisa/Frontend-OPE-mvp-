@@ -1,0 +1,93 @@
+<div class="page">
+  <h1 class="page-title">Registro de Conductores</h1>
+
+  <div class="toolbar">
+    <div class="search-group">
+      <span class="search-label">Buscar conductor</span>
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" [(ngModel)]="searchTerm" class="search-input"/>
+      </div>
+    </div>
+    <div class="action-btns">
+      <button class="btn btn--green" (click)="openModal()">añadir</button>
+      <button class="btn btn--red" (click)="deleteSelected()">eliminar</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Nombre</th>
+          <th>Licencia</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of filtered" [class.row--inactive]="d.status === 'Inactivo'">
+          <td>
+            <label class="checkbox-wrap">
+              <input type="checkbox" [(ngModel)]="d.checked" hidden/>
+              <span class="custom-check" [class.custom-check--active]="d.checked">
+                <svg *ngIf="d.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+              </span>
+            </label>
+          </td>
+          <td class="td-name">{{ d.name }}</td>
+          <td>{{ d.license }}</td>
+          <td>{{ d.phone }}</td>
+          <td>{{ d.email }}</td>
+          <td>
+            <span class="badge" [class.badge--green]="d.status === 'Activo'" [class.badge--gray]="d.status === 'Inactivo'">
+              {{ d.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="empty-state" *ngIf="filtered.length === 0">No se encontraron conductores.</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2 class="modal__title">Registrar Conductor</h2>
+
+    <div class="modal__grid">
+      <div class="modal__field">
+        <label class="modal__label">Nombre completo</label>
+        <input type="text" [(ngModel)]="newDriver.name" class="modal__input"/>
+      </div>
+      <div class="modal__field">
+        <label class="modal__label">Número de licencia</label>
+        <input type="text" [(ngModel)]="newDriver.license" class="modal__input"/>
+      </div>
+      <div class="modal__field">
+        <label class="modal__label">Teléfono</label>
+        <input type="tel" [(ngModel)]="newDriver.phone" class="modal__input"/>
+      </div>
+      <div class="modal__field">
+        <label class="modal__label">Email</label>
+        <input type="email" [(ngModel)]="newDriver.email" class="modal__input"/>
+      </div>
+      <div class="modal__field">
+        <label class="modal__label">Estado</label>
+        <select [(ngModel)]="newDriver.status" class="modal__select">
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn btn--gray" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn--green" (click)="saveDriver()">Guardar</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,131 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 1.5rem;
+}
+
+/* Logo */
+.logo-area {
+  margin-bottom: 2rem;
+}
+
+.logo-img {
+  width: 200px;
+  height: auto;
+  display: block;
+}
+
+/* Form */
+.form-group {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 1rem;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 13px;
+  display: flex;
+  align-items: center;
+  color: #5a9e5a;
+  pointer-events: none;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 13px;
+  display: flex;
+  align-items: center;
+  color: #5a9e5a;
+  cursor: pointer;
+  user-select: none;
+}
+
+.field-input {
+  width: 100%;
+  padding: 10px 36px 10px 38px;
+  border: 1.5px solid #5a9e5a;
+  border-radius: 50px;
+  font-size: 14px;
+  color: #222;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: #1d5e2a;
+    box-shadow: 0 0 0 3px rgba(29, 94, 42, 0.08);
+  }
+
+  &::placeholder {
+    color: #bbb;
+  }
+}
+
+/* Button */
+.btn-primary {
+  width: 100%;
+  max-width: 360px;
+  padding: 13px;
+  margin-top: 8px;
+  background: #1d5e2a;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  letter-spacing: 0.3px;
+
+  &:hover {
+    background: #164a20;
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+/* Footer */
+.footer-text {
+  margin-top: 1.25rem;
+  font-size: 13px;
+  color: #555;
+}
+
+.link-accent {
+  color: #3a8fd4;
+  text-decoration: none;
+  margin-left: 4px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -2,65 +2,69 @@
   <div class="login-card">
 
     <div class="logo-area">
-      <img src="assets/ope-logo.png" alt="OpE Logo" class="logo-img" />
+      <img src="Logo%20grande.png" alt="OpE Logo" class="logo-img" />
     </div>
 
-    <div class="form-group">
-      <label class="field-label">Usuario</label>
-      <div class="input-wrapper">
-        <span class="input-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-          </svg>
-        </span>
-        <input
-          type="text"
-          [(ngModel)]="usuario"
-          name="usuario"
-          autocomplete="username"
-          class="field-input"
-        />
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <label class="field-label">Usuario</label>
+        <div class="input-wrapper">
+          <span class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </span>
+          <input 
+            type="text" 
+            formControlName="usuario" 
+            autocomplete="username" 
+            class="field-input"
+            [class.is-invalid]="loginForm.get('usuario')?.invalid && loginForm.get('usuario')?.touched" />
+        </div>
+        <div *ngIf="loginForm.get('usuario')?.invalid && loginForm.get('usuario')?.touched" class="text-danger small mt-1">
+          <span *ngIf="loginForm.get('usuario')?.errors?.['required']">El usuario es obligatorio.</span>
+          <span *ngIf="loginForm.get('usuario')?.errors?.['pattern']">El usuario contiene caracteres no permitidos.</span>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label class="field-label">Contraseña</label>
-      <div class="input-wrapper">
-        <span class="input-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="12" r="3"/>
-            <line x1="10.5" y1="12" x2="20" y2="12"/>
-            <line x1="17" y1="10" x2="17" y2="12"/>
-            <line x1="20" y1="10" x2="20" y2="12"/>
-          </svg>
-        </span>
-        <input
-          [type]="showPassword ? 'text' : 'password'"
-          [(ngModel)]="contrasena"
-          name="contrasena"
-          autocomplete="current-password"
-          class="field-input"
-        />
-        <span class="input-icon-right" (click)="showPassword = !showPassword">
-          <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-            <line x1="1" y1="1" x2="23" y2="23"/>
-          </svg>
-        </span>
+      <div class="form-group">
+        <label class="field-label">Contraseña</label>
+        <div class="input-wrapper">
+          <span class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="12" r="3" />
+              <line x1="10.5" y1="12" x2="20" y2="12" />
+              <line x1="17" y1="10" x2="17" y2="12" />
+              <line x1="20" y1="10" x2="20" y2="12" />
+            </svg>
+          </span>
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            formControlName="contrasena"
+            autocomplete="current-password" 
+            class="field-input"
+            [class.is-invalid]="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched" />
+          <span class="input-icon-right" (click)="showPassword = !showPassword">
+            <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </span>
+        </div>
       </div>
-    </div>
 
-    <button class="btn-primary" (click)="onLogin()">Sign in</button>
+      <button type="submit" class="btn-primary">Sign in</button>
+    </form>
 
     <p class="footer-text">
       No tienes cuenta

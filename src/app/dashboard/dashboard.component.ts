@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
+import { DashboardData } from '../core/models/dashboard.model';
 
 // Chart.js
 import {
@@ -20,7 +22,7 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryS
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -29,48 +31,63 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private chart?: Chart;
   private updateSubscription?: Subscription;
+  private dataLoaded = false;
 
   // Dynamic metrics
-  consumoMes: number = 345;
-  promedioMes: number = 289;
-  promedioOficinas: number = 20;
+  consumoMes: number = 0;
+  promedioMes: number = 0;
+  promedioOficinas: number = 0;
 
-  readonly labels = [
-    'Oficina 1','Oficina 2','Oficina 3','Oficina 4','Oficina 5','Oficina 6',
-    'Oficina 7','Oficina 8','Oficina 9','Oficina 10','Oficina 11'
-  ];
+  labels: string[] = [];
+  data: number[] = [];
 
-  data = [4, 10, 8, 15, 10, 27, 16, 16, 11, 13, 8];
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    // Simulate real-time updates every 3 seconds
-    this.updateSubscription = interval(3000).subscribe(() => {
-      this.simulateRealTimeData();
+    this.loadDashboardData();
+
+    // Refresh data every 30 seconds to stay updated with the backend
+    this.updateSubscription = interval(30000).subscribe(() => {
+      this.loadDashboardData();
     });
   }
 
   ngAfterViewInit(): void {
-    this.buildChart();
-  }
-
-  private simulateRealTimeData(): void {
-    // Randomize metrics slightly to simulate live changes
-    this.consumoMes += Math.floor(Math.random() * 5) - 1; // Slight increase mostly
-    this.promedioMes = Math.floor(this.promedioMes + (Math.random() * 4 - 2));
-    this.promedioOficinas = Math.floor(this.promedioOficinas + (Math.random() * 2 - 1));
-
-    // Shift chart data left and add a new random point at the end
-    this.data.shift();
-    const newDataPoint = Math.floor(Math.random() * 15) + 5; // 5 to 20
-    this.data.push(newDataPoint);
-
-    if (this.chart) {
-      this.chart.data.datasets[0].data = this.data;
-      this.chart.update();
+    // If data already arrived, build chart now
+    if (this.dataLoaded) {
+      this.buildChart();
     }
   }
 
+  private loadDashboardData(): void {
+    this.http.get<DashboardData>('http://localhost:8000/api/dashboard/').subscribe({
+      next: (res) => {
+        this.labels = res.labels;
+        this.data = res.data;
+        this.consumoMes = res.metrics.consumoMes;
+        this.promedioMes = res.metrics.promedioMes;
+        this.promedioOficinas = res.metrics.promedioOficinas;
+        
+        this.dataLoaded = true;
+
+        if (this.chart) {
+          // Update existing chart
+          this.chart.data.labels = this.labels;
+          this.chart.data.datasets[0].data = this.data;
+          this.chart.update();
+        } else if (this.chartCanvas) {
+          // Build chart for the first time if view is ready
+          this.buildChart();
+        }
+      },
+      error: (err) => {
+        console.error('Error loading dashboard data', err);
+      }
+    });
+  }
+
   private buildChart(): void {
+    if (!this.chartCanvas) return;
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
@@ -85,7 +102,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           pointBackgroundColor: '#ffffff',
           pointRadius: 4,
           pointHoverRadius: 6,
-          tension: 0.3, // Add some smoothness to make it look nicer
+          tension: 0.3,
           fill: false
         }]
       },
@@ -99,7 +116,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             titleColor: '#fff',
             bodyColor: '#fff',
             callbacks: {
-              label: (ctx) => ` ${ctx.parsed.y} kw`
+              label: (ctx: any) => ` ${ctx.parsed.y} kw`
             }
           }
         },
@@ -115,7 +132,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           y: {
             min: 0,
-            max: 35,
             ticks: {
               stepSize: 5,
               color: '#1a1a1a',

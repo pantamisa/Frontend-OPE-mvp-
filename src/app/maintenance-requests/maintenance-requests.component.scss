@@ -1,97 +1,206 @@
-.page { }
 .page-title { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 1.4rem; }
 
-// ── Toolbar ─────────────────────────────────
-.toolbar {
-  display: flex; align-items: center; gap: 1rem; margin-bottom: 1.8rem; flex-wrap: wrap;
-}
+.toolbar { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.8rem; flex-wrap: wrap; }
 .search-group { display: flex; align-items: center; gap: 1rem; }
 .search-label { font-size: 15px; font-weight: 600; color: #222; white-space: nowrap; }
 .search-box {
-  position: relative; display: flex; align-items: center;
-  background: #f0edf6; border-radius: 50px; padding: 8px 16px; width: 320px;
+  display: flex; align-items: center; background: #f0edf6; border-radius: 50px; padding: 8px 16px; width: 320px;
 }
 .search-icon { color: #888; flex-shrink: 0; }
-.search-input {
-  border: none; background: transparent; outline: none; width: 100%;
-  font-size: 14px; margin-left: 8px;
-}
+.search-input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; margin-left: 8px; }
 .action-btns { display: flex; gap: 10px; margin-left: auto; }
 .btn {
-  padding: 10px 26px; border: none; border-radius: 8px; font-size: 14px;
-  font-weight: 700; cursor: pointer; letter-spacing: 0.3px; transition: opacity 0.15s;
+  padding: 10px 26px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
   &:hover { opacity: 0.88; }
   &--green { background: #3ab54a; color: #fff; }
   &--red   { background: #c0392b; color: #fff; }
 }
 
-// ── List ────────────────────────────────────
-.request-list { display: flex; flex-direction: column; }
-.request-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 0; border-bottom: 1px solid #e8e8e8;
-  &__info { flex: 1; }
-  &__title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 3px; }
-  &__desc { font-size: 13px; color: #666; }
-  &__meta { display: flex; align-items: center; gap: 14px; }
-  &__status { font-size: 13px; color: #444; }
-  &__comment-icon { cursor: pointer; display: flex; align-items: center; }
+.table-wrap { overflow-x: auto; }
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 14px;
+  th { text-align: left; padding: 10px 12px; color: #555; font-weight: 600; border-bottom: 2px solid #e0e0e0; }
+  td { padding: 14px 12px; border-bottom: 1px solid #eee; color: #222; vertical-align: middle; }
+  .td-bold { font-weight: 700; }
 }
-.checkbox-wrap { cursor: pointer; display: flex; align-items: center; }
-.hidden-check { display: none; }
+
+.td-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+
+  &--edit {
+    color: #ffffff;
+    background: #3a6ec8;
+    border-color: #2a5bb8;
+    &:hover { background: #2a5bb8; box-shadow: 0 4px 8px rgba(58, 110, 200, 0.3); transform: translateY(-1px); }
+  }
+
+  &--delete {
+    color: #c0392b;
+    background: #ffffff;
+    border-color: #f5c6cb;
+    &:hover { background: #c0392b; color: #ffffff; border-color: #c0392b; box-shadow: 0 4px 8px rgba(192, 57, 43, 0.3); transform: translateY(-1px); }
+  }
+
+  &:active { transform: scale(0.95); }
+}
+
+.checkbox-wrap { cursor: pointer; display: flex; }
 .custom-check {
-  width: 22px; height: 22px; border: 2px solid #5a9e5a; border-radius: 4px;
+  width: 20px; height: 20px; border: 2px solid #5a9e5a; border-radius: 4px;
   display: flex; align-items: center; justify-content: center; transition: background 0.15s;
-  &--active { background: #3a6ec8; border-color: #3a6ec8; }
+  &--active { background: #1d5e2a; border-color: #1d5e2a; }
+}
+
+.badge {
+  display: inline-block; padding: 3px 12px; border-radius: 50px; font-size: 12px; font-weight: 600;
+  &--green  { background: #d4f5d8; color: #1d7a2a; }
+  &--blue   { background: #d4eaff; color: #1a5fa8; }
+  &--orange { background: #ffe5cc; color: #c05a00; }
 }
 .empty-state { padding: 2rem; text-align: center; color: #aaa; font-size: 14px; }
 
-// ── Modal ───────────────────────────────────
-.modal-backdrop {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-  display: flex; align-items: center; justify-content: center; z-index: 200;
+// Pagination
+.pagination {
+  display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 2rem; padding: 1rem;
 }
-.modal {
-  background: #fff; border: 2.5px solid #5a9e5a; border-radius: 14px;
-  padding: 1.8rem 2rem 1.2rem; width: 100%; max-width: 700px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-  &__layout { display: flex; gap: 2rem; margin-bottom: 1.2rem; }
-  &__left { flex: 1; display: flex; flex-direction: column; }
-  &__right { flex: 1; display: flex; flex-direction: column; }
-  &__field-label { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 8px; }
-  &__input {
-    width: 100%; padding: 10px 16px; border: 2px solid #5a9e5a; border-radius: 50px;
-    font-size: 14px; outline: none;
-    &:focus { border-color: #1d5e2a; }
+.page-numbers { display: flex; gap: 0.5rem; }
+.page-btn {
+  padding: 8px 16px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #555; transition: all 0.2s;
+  &:hover:not(:disabled) { background: #f0f0f0; border-color: #bbb; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+.page-number {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #555; transition: all 0.2s;
+  &:hover { background: #f0f0f0; }
+  &.active { background: #1d5e2a; color: #fff; border-color: #1d5e2a; }
+}
+
+// Floating Action Button (FAB)
+.fab-btn {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #1d5e2a;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(29, 94, 42, 0.4);
+  cursor: pointer;
+  z-index: 150;
+  transition: transform 0.2s, background 0.2s;
+
+  &:hover {
+    background: #164a20;
+    transform: scale(1.08);
   }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Modal (Custom UI)
+.custom-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.custom-modal {
+  background: #fff;
+  border: 2px solid #5a9e5a;
+  border-radius: 14px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  position: relative;
+  
+  &__title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 1.6rem;
+    text-align: center;
+  }
+  
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem 1.6rem;
+    margin-bottom: 1.8rem;
+  }
+  
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  &__label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+  }
+  
+  &__input, &__select {
+    padding: 10px 14px;
+    border: 1.5px solid #5a9e5a;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    
+    &:focus {
+      border-color: #1d5e2a;
+    }
+  }
+  
   &__select {
-    padding: 9px 14px; border: 1.5px solid #ccc; border-radius: 8px;
-    font-size: 14px; outline: none; cursor: pointer; background: #fff;
-    width: 160px;
+    background: #fff;
+    cursor: pointer;
   }
-  &__textarea {
-    width: 100%; flex: 1; border: 2px solid #5a9e5a; border-radius: 12px;
-    padding: 10px 14px; font-size: 14px; outline: none; resize: none; min-height: 140px;
-    &:focus { border-color: #1d5e2a; }
-  }
-  &__upload-row {
-    display: flex; align-items: center; gap: 12px; margin-top: 1.4rem;
-  }
+  
   &__actions {
-    display: flex; justify-content: flex-end; gap: 12px; margin-top: 0.4rem;
-  }
-  &__icon-btn {
-    background: none; border: none; cursor: pointer; color: #444;
-    display: flex; align-items: center; padding: 4px;
-    transition: color 0.15s;
-    &:hover { color: #1d5e2a; }
-    &--red:hover { color: #c0392b; }
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 0.5rem;
   }
 }
-.upload-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 48px; height: 48px; border: 2.5px solid #5a9e5a; border-radius: 10px;
-  cursor: pointer; color: #1d5e2a;
-  &:hover { background: #f0faf0; }
+
+@media (max-width: 600px) {
+  .custom-modal {
+    margin: 1rem;
+    padding: 1.5rem;
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }
-.upload-name { font-size: 12px; color: #666; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

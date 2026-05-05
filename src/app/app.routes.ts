@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 // Auth
 import { LoginComponent }    from './auth/login/login.component';
@@ -27,6 +28,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: 'dashboard',            component: DashboardComponent },
       { path: 'fleet-tracking',       component: FleetTrackingComponent },

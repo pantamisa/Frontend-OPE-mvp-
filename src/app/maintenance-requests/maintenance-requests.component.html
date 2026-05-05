@@ -6,112 +6,152 @@
     <div class="search-group">
       <span class="search-label">Buscar solicitud</span>
       <div class="search-box">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <line x1="21" cy="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" [(ngModel)]="searchTerm" placeholder="" class="search-input" />
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Descripción, vehículo, tipo..." class="search-input" />
       </div>
     </div>
     <div class="action-btns">
       <button class="btn btn--green" (click)="openModal()">Añadir</button>
-      <button class="btn btn--red" (click)="deleteSelected()">Eliminar</button>
+      <button class="btn btn--red" (click)="deleteSelected()">Eliminar Seleccionados</button>
     </div>
   </div>
 
-  <!-- Request List -->
-  <div class="request-list">
-    <div class="request-item" *ngFor="let req of filtered">
-      <div class="request-item__info">
-        <p class="request-item__title">{{ req.title }}</p>
-        <p class="request-item__desc">{{ req.description }}</p>
-      </div>
-      <div class="request-item__meta">
-        <span class="request-item__status">Estado de reparacion</span>
-        <span class="request-item__comment-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </span>
-        <label class="checkbox-wrap">
-          <input type="checkbox" [(ngModel)]="req.checked" class="hidden-check" />
-          <span class="custom-check" [class.custom-check--active]="req.checked">
-            <svg *ngIf="req.checked" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff"
-              stroke-width="2.2">
-              <polyline points="1.5,6 4.5,9 10.5,3" />
-            </svg>
-          </span>
-        </label>
-      </div>
-    </div>
-    <div class="empty-state" *ngIf="filtered.length === 0">
+  <!-- Table -->
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 40px;"></th>
+          <th>Vehículo</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>KM</th>
+          <th>Costo</th>
+          <th>Estado</th>
+          <th style="text-align: center; width: 120px;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of paginatedMaintenances">
+          <td>
+            <label class="checkbox-wrap">
+              <input type="checkbox" [(ngModel)]="m.checked" hidden />
+              <span class="custom-check" [class.custom-check--active]="m.checked">
+                <svg *ngIf="m.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2">
+                  <polyline points="1.5,6 4.5,9 10.5,3" />
+                </svg>
+              </span>
+            </label>
+          </td>
+          <td class="td-bold">{{ getVehiclePlate(m.vehiculo) }}</td>
+          <td><span style="text-transform: capitalize;">{{ m.tipo }}</span></td>
+          <td>{{ m.fecha }}</td>
+          <td>{{ m.descripcion }}</td>
+          <td>{{ m.km_al_momento }}</td>
+          <td class="td-bold">${{ m.costo }}</td>
+          <td><span class="badge" [ngClass]="statusClass(m.estado)">{{ m.estado }}</span></td>
+          <td style="text-align: center;">
+            <div class="td-actions">
+              <button class="action-icon action-icon--edit" (click)="editMaintenance(m)" title="Editar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </button>
+              <button class="action-icon action-icon--delete" (click)="deleteSingle(m.id)" title="Eliminar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="filteredMaintenances.length === 0">
       <p>No se encontraron solicitudes.</p>
     </div>
   </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">Anterior</button>
+    <div class="page-numbers">
+      <button *ngFor="let page of pageNumbers" class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+        {{ page }}
+      </button>
+    </div>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">Siguiente</button>
+  </div>
 </div>
 
-<!-- ══════════ ADD MODAL ══════════ -->
-<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal__layout">
+<!-- FAB -->
+<button class="fab-btn" (click)="openModal()" title="Nueva Solicitud">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+</button>
 
-      <!-- Left column -->
-      <div class="modal__left">
-        <p class="modal__field-label">Titulo de Solicitud de mantenimiento</p>
-        <input type="text" [(ngModel)]="newRequest.title" class="modal__input modal__input--pill" placeholder="" />
-
-        <p class="modal__field-label" style="margin-top:1.4rem;">Tipo de Falla</p>
-        <select [(ngModel)]="newRequest.faultType" class="modal__select">
-          <option *ngFor="let ft of faultTypes" [value]="ft">{{ ft }}</option>
+<!-- MODAL: REGISTRO/EDICION -->
+<div class="custom-modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+    <h2 class="custom-modal__title">{{ isEditing ? 'Editar Mantenimiento' : 'Nueva Solicitud de Mantenimiento' }}</h2>
+    
+    <div class="custom-modal__grid">
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Vehículo *</label>
+        <select [(ngModel)]="newRequest.vehiculo" class="custom-modal__select">
+          <option [value]="0">Seleccione un vehículo</option>
+          <option *ngFor="let v of vehicles" [value]="v.id">{{ v.plate }} - {{ v.brand }} {{ v.model }}</option>
         </select>
-
-        <div class="modal__upload-row">
-          <p class="modal__field-label">Subir imagenes</p>
-          <label class="upload-btn">
-            <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-          </label>
-          <span class="upload-name" *ngIf="selectedImageName">{{ selectedImageName }}</span>
-        </div>
       </div>
 
-      <!-- Right column -->
-      <div class="modal__right">
-        <p class="modal__field-label">Descripcion</p>
-        <textarea [(ngModel)]="newRequest.description" class="modal__textarea" rows="7"></textarea>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Tipo de Mantenimiento</label>
+        <select [(ngModel)]="newRequest.tipo" class="custom-modal__select">
+          <option *ngFor="let t of types" [value]="t.value">{{ t.label }}</option>
+        </select>
       </div>
 
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Fecha</label>
+        <input type="date" [(ngModel)]="newRequest.fecha" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Kilometraje Actual</label>
+        <input type="number" [(ngModel)]="newRequest.km_al_momento" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Costo ($)</label>
+        <input type="number" [(ngModel)]="newRequest.costo" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Estado</label>
+        <select [(ngModel)]="newRequest.estado" class="custom-modal__select">
+          <option *ngFor="let s of states" [value]="s.value">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <div class="custom-modal__field" style="grid-column: span 2;">
+        <label class="custom-modal__label">Descripción *</label>
+        <textarea [(ngModel)]="newRequest.descripcion" class="custom-modal__input" rows="4" style="border-radius: 12px; resize: none;"></textarea>
+      </div>
     </div>
 
-    <!-- Modal actions -->
-    <div class="modal__actions">
-      <button class="modal__icon-btn" title="Añadir" (click)="saveRequest()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="16" />
-          <line x1="8" y1="12" x2="16" y2="12" />
-        </svg>
-      </button>
-      <button class="modal__icon-btn" title="Guardar" (click)="saveRequest()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-          <polyline points="17 21 17 13 7 13 7 21" />
-          <polyline points="7 3 7 8 15 8" />
-        </svg>
-      </button>
-      <button class="modal__icon-btn modal__icon-btn--red" title="Cancelar" (click)="closeModal()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6l-1 14H6L5 6" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-        </svg>
-      </button>
+    <div class="custom-modal__actions">
+      <button class="btn btn--gray" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn--green" (click)="saveMaintenance()">{{ isEditing ? 'Actualizar' : 'Guardar' }}</button>
     </div>
   </div>
 </div>

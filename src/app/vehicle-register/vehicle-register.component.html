@@ -7,14 +7,14 @@
       <div class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
           <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <line x1="21" cy="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" [(ngModel)]="searchTerm" class="search-input" />
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" class="search-input" placeholder="Filtrar por placa, marca..." />
       </div>
     </div>
     <div class="action-btns">
       <button class="btn btn--green" (click)="openModal()">Añadir</button>
-      <button class="btn btn--red" (click)="deleteSelected()">Eliminar</button>
+      <button class="btn btn--red" (click)="deleteSelected()">Eliminar Seleccionados</button>
     </div>
   </div>
 
@@ -22,18 +22,20 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th></th>
+          <th style="width: 40px;"></th>
           <th>Placa</th>
+          <th>Conductor</th>
           <th>Marca</th>
           <th>Modelo</th>
           <th>Año</th>
           <th>Tipo</th>
           <th>km/L</th>
           <th>Estado</th>
+          <th style="text-align: center; width: 140px;">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let v of filtered">
+        <tr *ngFor="let v of paginatedVehicles">
           <td>
             <label class="checkbox-wrap">
               <input type="checkbox" [(ngModel)]="v.checked" hidden />
@@ -46,60 +48,180 @@
             </label>
           </td>
           <td class="td-bold">{{ v.plate }}</td>
+          <td>
+            <span class="td-driver" *ngIf="v.assigned_driver_name">{{ v.assigned_driver_name }}</span>
+            <span class="text-muted" *ngIf="!v.assigned_driver_name">Sin asignar</span>
+          </td>
           <td>{{ v.brand }}</td>
           <td>{{ v.model }}</td>
           <td>{{ v.year }}</td>
           <td>{{ v.type }}</td>
-          <td>{{ v.kmPerLiter }}</td>
+          <td>{{ v.km_per_liter }}</td>
           <td><span class="badge" [ngClass]="statusClass(v.status)">{{ v.status }}</span></td>
+          <td style="text-align: center;">
+            <div class="td-actions">
+              <!-- Asignar Conductor (Solo si está disponible) -->
+              <button class="action-icon action-icon--assign" *ngIf="v.status.toLowerCase().includes('disponible')" (click)="openAssignModal(v)" title="Asignar Conductor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="17" y1="11" x2="23" y2="11"></line>
+                </svg>
+              </button>
+              <!-- Editar -->
+              <button class="action-icon action-icon--edit" (click)="editVehicle(v)" title="Editar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </button>
+              <!-- Eliminar -->
+              <button class="action-icon action-icon--delete" (click)="deleteSingle(v.id)" title="Eliminar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
-    <p class="empty-state" *ngIf="filtered.length === 0">No se encontraron vehículos.</p>
+    <p class="empty-state" *ngIf="filteredVehicles.length === 0">No se encontraron vehículos.</p>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+      Anterior
+    </button>
+    <div class="page-numbers">
+      <button *ngFor="let page of pageNumbers" class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+        {{ page }}
+      </button>
+    </div>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+      Siguiente
+    </button>
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <h2 class="modal__title">Registrar Vehículo</h2>
-    <div class="modal__grid">
-      <div class="modal__field">
-        <label class="modal__label">Placa</label>
-        <input type="text" [(ngModel)]="newVehicle.plate" class="modal__input" placeholder="ABC-123" />
+<!-- FLOATING ACTION BUTTON (FAB) -->
+<button class="fab-btn" (click)="openModal()" title="Añadir Vehículo">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+</button>
+
+<!-- MODAL: REGISTRO/EDICION -->
+<div class="custom-modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+    <h2 class="custom-modal__title">{{ isEditing ? 'Editar Vehículo' : 'Registrar Vehículo' }}</h2>
+    <div class="custom-modal__grid">
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Placa *</label>
+        <input type="text" [(ngModel)]="newVehicle.plate" class="custom-modal__input" placeholder="ABC-123" />
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Marca</label>
-        <input type="text" [(ngModel)]="newVehicle.brand" class="modal__input" />
-      </div>
-      <div class="modal__field">
-        <label class="modal__label">Modelo</label>
-        <input type="text" [(ngModel)]="newVehicle.model" class="modal__input" />
-      </div>
-      <div class="modal__field">
-        <label class="modal__label">Año</label>
-        <input type="number" [(ngModel)]="newVehicle.year" class="modal__input" />
-      </div>
-      <div class="modal__field">
-        <label class="modal__label">Tipo</label>
-        <select [(ngModel)]="newVehicle.type" class="modal__select">
-          <option *ngFor="let t of vehicleTypes" [value]="t">{{ t }}</option>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Marca *</label>
+        <select [(ngModel)]="newVehicle.brand" (change)="onBrandChange()" class="custom-modal__select">
+          <option value="">Selecciona marca</option>
+          <option *ngFor="let b of brands" [value]="b">{{ b }}</option>
         </select>
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Rendimiento (km/L)</label>
-        <input type="number" [(ngModel)]="newVehicle.kmPerLiter" class="modal__input" />
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Modelo *</label>
+        <select [(ngModel)]="newVehicle.model" class="custom-modal__select" [disabled]="!newVehicle.brand">
+          <option value="">Selecciona modelo</option>
+          <option *ngFor="let m of models" [value]="m">{{ m }}</option>
+        </select>
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Estado</label>
-        <select [(ngModel)]="newVehicle.status" class="modal__select">
-          <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Año *</label>
+        <input type="number" [(ngModel)]="newVehicle.year" (change)="onBrandChange()" class="custom-modal__input" />
+      </div>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Tipo</label>
+        <select [(ngModel)]="newVehicle.type" class="custom-modal__select">
+          <option *ngFor="let t of vehicleTypes" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </div>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Estado</label>
+        <select [(ngModel)]="newVehicle.status" class="custom-modal__select">
+          <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+        </select>
+      </div>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Capacidad</label>
+        <input type="number" [(ngModel)]="newVehicle.capacidad" class="custom-modal__input" />
+      </div>
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Color</label>
+        <select [(ngModel)]="newVehicle.color" class="custom-modal__select">
+          <option *ngFor="let c of colorOptions" [value]="c.value">{{ c.label }}</option>
         </select>
       </div>
     </div>
-    <div class="modal__actions">
+    <div class="custom-modal__actions">
       <button class="btn btn--gray" (click)="closeModal()">Cancelar</button>
-      <button class="btn btn--green" (click)="saveVehicle()">Guardar</button>
+      <button class="btn btn--green" (click)="saveVehicle()">{{ isEditing ? 'Actualizar' : 'Guardar' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ASIGNAR CONDUCTOR (CONTRATO) -->
+<div class="custom-modal-backdrop" *ngIf="showAssignModal" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+    <h2 class="custom-modal__title">Asignar Conductor</h2>
+    <p class="custom-modal__subtitle text-center mb-4">Se creará un nuevo contrato para esta asignación.</p>
+    
+    <div class="custom-modal__grid">
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Seleccionar Conductor *</label>
+        <select [(ngModel)]="assignment.conductor" class="custom-modal__select">
+          <option [value]="0">Selecciona un conductor activo</option>
+          <option *ngFor="let d of drivers" [value]="d.id">{{ d.nombre }} {{ d.apellido }} - {{ d.cedula }}</option>
+        </select>
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Número de Contrato</label>
+        <input type="text" [(ngModel)]="assignment.numero_contrato" class="custom-modal__input" readonly />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Tipo de Tarifa</label>
+        <select [(ngModel)]="assignment.tipo_tarifa" class="custom-modal__select">
+          <option value="hora">Por Hora</option>
+          <option value="dia">Por Día</option>
+          <option value="km">Por Kilómetro</option>
+        </select>
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Valor Tarifa ($)</label>
+        <input type="text" [(ngModel)]="assignment.tarifa_valor" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">KM Inicial</label>
+        <input type="text" [(ngModel)]="assignment.km_inicial" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Observaciones</label>
+        <input type="text" [(ngModel)]="assignment.observaciones" class="custom-modal__input" />
+      </div>
+    </div>
+
+    <div class="custom-modal__actions">
+      <button class="btn btn--gray" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn--green" (click)="saveAssignment()">Confirmar Asignación</button>
     </div>
   </div>
 </div>

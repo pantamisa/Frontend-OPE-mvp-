@@ -92,7 +92,7 @@
   color: #1a3a22;
   background: #fff;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 
   &::placeholder {
     color: #7aae7a;
@@ -102,6 +102,13 @@
   &:focus {
     border-color: #1d5e2a;
     box-shadow: 0 0 0 3px rgba(29, 94, 42, 0.08);
+  }
+
+  &.is-invalid {
+    border-color: #dc3545;
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+    }
   }
 }
 

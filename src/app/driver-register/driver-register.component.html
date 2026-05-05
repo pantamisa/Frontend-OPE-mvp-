@@ -7,14 +7,14 @@
       <div class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
           <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <line x1="21" cy="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" [(ngModel)]="searchTerm" class="search-input" />
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" class="search-input" placeholder="Nombre, licencia, cédula..." />
       </div>
     </div>
     <div class="action-btns">
       <button class="btn btn--green" (click)="openModal()">Añadir</button>
-      <button class="btn btn--red" (click)="deleteSelected()">Eliminar</button>
+      <button class="btn btn--red" (click)="deleteSelected()">Eliminar Seleccionados</button>
     </div>
   </div>
 
@@ -23,78 +23,155 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th></th>
+          <th style="width: 40px;"></th>
+          <th>Cédula</th>
           <th>Nombre</th>
           <th>Licencia</th>
           <th>Teléfono</th>
           <th>Email</th>
           <th>Estado</th>
+          <th style="text-align: center; width: 100px;">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let d of filtered" [class.row--inactive]="d.status === 'Inactivo'">
+        <tr *ngFor="let d of paginatedDrivers" [class.row--inactive]="d.estado.toLowerCase() === 'inactivo'">
           <td>
             <label class="checkbox-wrap">
               <input type="checkbox" [(ngModel)]="d.checked" hidden />
               <span class="custom-check" [class.custom-check--active]="d.checked">
-                <svg *ngIf="d.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff"
-                  stroke-width="2.2">
+                <svg *ngIf="d.checked" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2">
                   <polyline points="1.5,6 4.5,9 10.5,3" />
                 </svg>
               </span>
             </label>
           </td>
-          <td class="td-name">{{ d.name }}</td>
-          <td>{{ d.license }}</td>
-          <td>{{ d.phone }}</td>
+          <td class="td-bold">{{ d.cedula }}</td>
+          <td class="td-name">{{ d.nombre }} {{ d.apellido }}</td>
+          <td>
+            <div class="license-info">
+              <span class="license-num">{{ d.num_licencia }}</span>
+              <span class="license-cat">{{ d.categoria_licencia }}</span>
+            </div>
+          </td>
+          <td>{{ d.telefono }}</td>
           <td>{{ d.email }}</td>
           <td>
-            <span class="badge" [class.badge--green]="d.status === 'Activo'"
-              [class.badge--gray]="d.status === 'Inactivo'">
-              {{ d.status }}
+            <span class="badge" [ngClass]="statusClass(d.estado)">
+              {{ d.estado }}
             </span>
+          </td>
+          <td style="text-align: center;">
+            <div class="td-actions">
+              <button class="action-icon action-icon--edit" (click)="editDriver(d)" title="Editar Conductor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </button>
+              <button class="action-icon action-icon--delete" (click)="deleteSingle(d.id)" title="Eliminar Conductor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
-    <p class="empty-state" *ngIf="filtered.length === 0">No se encontraron conductores.</p>
+    <p class="empty-state" *ngIf="filteredDrivers.length === 0">No se encontraron conductores.</p>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+      Anterior
+    </button>
+    <div class="page-numbers">
+      <button *ngFor="let page of pageNumbers" class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
+        {{ page }}
+      </button>
+    </div>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+      Siguiente
+    </button>
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <h2 class="modal__title">Registrar Conductor</h2>
+<!-- FLOATING ACTION BUTTON (FAB) -->
+<button class="fab-btn" (click)="openModal()" title="Añadir Conductor">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+</button>
 
-    <div class="modal__grid">
-      <div class="modal__field">
-        <label class="modal__label">Nombre completo</label>
-        <input type="text" [(ngModel)]="newDriver.name" class="modal__input" />
+<!-- MODAL (Formulario Flotante) -->
+<div class="custom-modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+    <h2 class="custom-modal__title">{{ isEditing ? 'Editar Conductor' : 'Registrar Conductor' }}</h2>
+    <div class="custom-modal__grid">
+      
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Cédula *</label>
+        <input type="text" [(ngModel)]="newDriver.cedula" class="custom-modal__input" placeholder="Ej: 12345678" />
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Número de licencia</label>
-        <input type="text" [(ngModel)]="newDriver.license" class="modal__input" />
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Nombre *</label>
+        <input type="text" [(ngModel)]="newDriver.nombre" class="custom-modal__input" placeholder="Nombre" />
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Teléfono</label>
-        <input type="tel" [(ngModel)]="newDriver.phone" class="modal__input" />
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Apellido *</label>
+        <input type="text" [(ngModel)]="newDriver.apellido" class="custom-modal__input" placeholder="Apellido" />
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Email</label>
-        <input type="email" [(ngModel)]="newDriver.email" class="modal__input" />
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Licencia *</label>
+        <input type="text" [(ngModel)]="newDriver.num_licencia" class="custom-modal__input" placeholder="Número de licencia" />
       </div>
-      <div class="modal__field">
-        <label class="modal__label">Estado</label>
-        <select [(ngModel)]="newDriver.status" class="modal__select">
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Categoría</label>
+        <select [(ngModel)]="newDriver.categoria_licencia" class="custom-modal__select">
+          <option *ngFor="let cat of licenseCategories" [value]="cat">{{ cat }}</option>
         </select>
       </div>
-    </div>
 
-    <div class="modal__actions">
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Vencimiento Licencia</label>
+        <input type="date" [(ngModel)]="newDriver.fecha_venc_licencia" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Teléfono</label>
+        <input type="tel" [(ngModel)]="newDriver.telefono" class="custom-modal__input" placeholder="Ej: 300 123 4567" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Email</label>
+        <input type="email" [(ngModel)]="newDriver.email" class="custom-modal__input" placeholder="email@ejemplo.com" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Límite horas/día</label>
+        <input type="number" [(ngModel)]="newDriver.limite_horas_dia" class="custom-modal__input" />
+      </div>
+
+      <div class="custom-modal__field">
+        <label class="custom-modal__label">Estado</label>
+        <select [(ngModel)]="newDriver.estado" class="custom-modal__select">
+          <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="custom-modal__actions">
       <button class="btn btn--gray" (click)="closeModal()">Cancelar</button>
-      <button class="btn btn--green" (click)="saveDriver()">Guardar</button>
+      <button class="btn btn--green" (click)="saveDriver()">{{ isEditing ? 'Actualizar' : 'Guardar' }}</button>
     </div>
   </div>
 </div>

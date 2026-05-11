@@ -33,7 +33,19 @@ export class DriverRegisterComponent implements OnInit {
 
   licenseCategories = ['A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'];
 
-  newDriver = {
+  newDriver: {
+    cedula: string;
+    nombre: string;
+    apellido: string;
+    num_licencia: string;
+    categoria_licencia: string;
+    fecha_venc_licencia: string;
+    telefono: string;
+    email: string;
+    estado: string;
+    limite_horas_dia: number;
+    user: number | null;
+  } = {
     cedula: '',
     nombre: '',
     apellido: '',
@@ -50,7 +62,7 @@ export class DriverRegisterComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private notificationService: NotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadDrivers();
@@ -81,7 +93,7 @@ export class DriverRegisterComponent implements OnInit {
       email: '',
       estado: 'activo',
       limite_horas_dia: 8,
-      user: 1
+      user: null
     };
   }
 
@@ -99,7 +111,7 @@ export class DriverRegisterComponent implements OnInit {
       email: d.email,
       estado: d.estado.toLowerCase(),
       limite_horas_dia: Number(d.limite_horas_dia) || 8,
-      user: d.user || 1
+      user: d.user || null
     };
     this.showModal = true;
   }
@@ -114,8 +126,11 @@ export class DriverRegisterComponent implements OnInit {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { user, ...driverDataToSend } = this.newDriver;
+
     if (this.isEditing && this.currentDriverId) {
-      this.http.put(`http://localhost:8000/api/drivers/${this.currentDriverId}/`, this.newDriver).subscribe({
+      this.http.put(`http://localhost:8000/api/drivers/${this.currentDriverId}/`, driverDataToSend).subscribe({
         next: () => {
           this.notificationService.success('¡Conductor actualizado con éxito!');
           this.loadDrivers();
@@ -124,13 +139,20 @@ export class DriverRegisterComponent implements OnInit {
         error: (err) => console.error('Error updating driver', err)
       });
     } else {
-      this.http.post('http://localhost:8000/api/drivers/', this.newDriver).subscribe({
+      this.http.post('http://localhost:8000/api/drivers/', driverDataToSend).subscribe({
         next: () => {
           this.notificationService.success('¡Conductor registrado con éxito!');
           this.loadDrivers();
           this.closeModal();
         },
-        error: (err) => console.error('Error saving driver', err)
+        error: (err) => {
+          console.error('Error saving driver', err);
+          if (err.error && err.error.user && err.error.user.includes('Ya existe')) {
+            this.notificationService.error('Error: Ya existe un conductor asociado a este usuario. Por favor, verifica tu cuenta o contacta al administrador.');
+          } else {
+            this.notificationService.error('Error al guardar el conductor.');
+          }
+        }
       });
     }
   }

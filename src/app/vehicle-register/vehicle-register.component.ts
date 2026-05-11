@@ -45,18 +45,18 @@ export class VehicleRegisterComponent implements OnInit {
   models: string[] = [];
 
   vehicleTypes = [
-    { label: 'Sedán', value: 'Sedán' },
-    { label: 'SUV', value: 'SUV' },
-    { label: 'Camioneta', value: 'Camioneta' },
-    { label: 'Furgoneta', value: 'Furgoneta' },
-    { label: 'Camión', value: 'Camión' },
-    { label: 'Moto', value: 'Moto' }
+    { label: 'Particular', value: 'particular' },
+    { label: 'Bus', value: 'bus' },
+    { label: 'Camión', value: 'camion' },
+    { label: 'Motocicleta', value: 'motocicleta' },
+    { label: 'Furgón', value: 'furgon' }
   ];
 
   statusOptions = [
-    { label: 'Disponible', value: 'Disponible' },
-    { label: 'En renta', value: 'En renta' },
-    { label: 'Mantenimiento', value: 'Mantenimiento' }
+    { label: 'Disponible', value: 'disponible' },
+    { label: 'En Renta', value: 'en_renta' },
+    { label: 'Mantenimiento', value: 'mantenimiento' },
+    { label: 'Fuera de Servicio', value: 'fuera_de_servicio' }
   ];
 
   colorOptions = [
@@ -73,8 +73,8 @@ export class VehicleRegisterComponent implements OnInit {
     brand: '',
     model: '',
     year: new Date().getFullYear(),
-    type: 'Sedán',
-    status: 'Disponible',
+    type: 'particular',
+    status: 'disponible',
     km_per_liter: 12,
     capacidad: 5,
     color: 'Blanco'
@@ -82,7 +82,7 @@ export class VehicleRegisterComponent implements OnInit {
 
   assignment = {
     conductor: 0,
-    numero_contrato: '',
+    numero_contrato: `CONT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
     tipo_tarifa: 'dia',
     tarifa_valor: '150000',
     km_inicial: '0',
@@ -92,7 +92,7 @@ export class VehicleRegisterComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private notificationService: NotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadVehicles();
@@ -129,8 +129,8 @@ export class VehicleRegisterComponent implements OnInit {
       brand: '',
       model: '',
       year: new Date().getFullYear(),
-      type: 'Sedán',
-      status: 'Disponible',
+      type: 'particular',
+      status: 'disponible',
       km_per_liter: 12,
       capacidad: 5,
       color: 'Blanco'
@@ -167,9 +167,20 @@ export class VehicleRegisterComponent implements OnInit {
       return;
     }
 
-    const request = this.isEditing && this.currentVehicleId ?
-      this.http.put(`http://localhost:8000/api/vehicles/${this.currentVehicleId}/`, this.newVehicle) :
-      this.http.post('http://localhost:8000/api/vehicles/', this.newVehicle);
+    const payload = {
+      ...this.newVehicle,
+      year: Number(this.newVehicle.year),
+      km_per_liter: Number(this.newVehicle.km_per_liter),
+      capacidad: Number(this.newVehicle.capacidad)
+    };
+
+    const url = this.isEditing && this.currentVehicleId ?
+      `http://localhost:8000/api/vehicles/${this.currentVehicleId}/` :
+      'http://localhost:8000/api/vehicles/';
+
+    const request = this.isEditing ?
+      this.http.put(url, payload) :
+      this.http.post(url, payload);
 
     request.subscribe({
       next: () => {
@@ -177,11 +188,13 @@ export class VehicleRegisterComponent implements OnInit {
         this.loadVehicles();
         this.closeModal();
       },
-      error: (err) => console.error('Error saving vehicle', err)
+      error: (err) => {
+        console.error('Error 400 detalle:', err.error);
+        this.notificationService.show('danger', 'Error al guardar: ' + JSON.stringify(err.error));
+      }
     });
   }
 
-  // --- Assignment Workflow ---
   openAssignModal(v: Vehicle) {
     this.currentVehicleId = v.id;
     this.assignment = {
@@ -217,7 +230,6 @@ export class VehicleRegisterComponent implements OnInit {
     });
   }
 
-  // --- Deletion ---
   deleteSingle(id: number) {
     if (confirm('¿Estás seguro de eliminar este vehículo?')) {
       this.http.delete(`http://localhost:8000/api/vehicles/${id}/`).subscribe({
@@ -227,7 +239,7 @@ export class VehicleRegisterComponent implements OnInit {
     }
   }
 
-  deleteSelected() { 
+  deleteSelected() {
     const selected = this.vehicles.filter(v => v.checked);
     if (selected.length === 0) return;
     if (confirm(`¿Estás seguro de eliminar ${selected.length} vehículo(s)?`)) {
@@ -241,11 +253,10 @@ export class VehicleRegisterComponent implements OnInit {
     }
   }
 
-  // --- UI Helpers ---
   get filteredVehicles() {
     const q = this.searchTerm.toLowerCase();
     return this.vehicles.filter(v =>
-      v.plate.toLowerCase().includes(q) || v.brand.toLowerCase().includes(q) || 
+      v.plate.toLowerCase().includes(q) || v.brand.toLowerCase().includes(q) ||
       v.model.toLowerCase().includes(q) || (v.assigned_driver_name && v.assigned_driver_name.toLowerCase().includes(q))
     );
   }
